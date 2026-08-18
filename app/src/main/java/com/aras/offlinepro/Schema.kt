@@ -1,7 +1,10 @@
 package com.aras.offlinepro
 
 import android.content.Context
+import android.util.Base64
 import org.json.JSONObject
+import java.io.ByteArrayInputStream
+import java.util.zip.GZIPInputStream
 
 data class FieldDef(
     val row: Int?,
@@ -19,7 +22,9 @@ class FormSchema(private val categories: Map<String, List<FieldDef>>) {
 
     companion object {
         fun load(context: Context): FormSchema {
-            val text = context.assets.open("form_schema.json").bufferedReader().use { it.readText() }
+            val encoded = context.assets.open("form_schema.gz.b64").bufferedReader().use { it.readText() }
+            val compressed = Base64.decode(encoded, Base64.DEFAULT)
+            val text = GZIPInputStream(ByteArrayInputStream(compressed)).bufferedReader().use { it.readText() }
             val root = JSONObject(text)
             val cats = root.getJSONObject("categories")
             val map = linkedMapOf<String, List<FieldDef>>()
@@ -29,9 +34,7 @@ class FormSchema(private val categories: Map<String, List<FieldDef>>) {
                     for (i in 0 until arr.length()) {
                         val o = arr.getJSONObject(i)
                         val options = mutableListOf<String>()
-                        o.optJSONArray("options")?.let { a ->
-                            for (j in 0 until a.length()) options += a.getString(j)
-                        }
+                        o.optJSONArray("options")?.let { a -> for (j in 0 until a.length()) options += a.getString(j) }
                         add(FieldDef(
                             o.optInt("row", -1).takeIf { it >= 0 },
                             o.getString("category"),
