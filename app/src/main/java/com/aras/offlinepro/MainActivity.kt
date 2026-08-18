@@ -92,7 +92,7 @@ private fun HomeScreen(sites: List<Site>, onNew: () -> Unit, onOpen: (String) ->
         Button(onClick = onNew, modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp).height(54.dp), shape = RoundedCornerShape(16.dp)) { Text("ایجاد سایت جدید") }
         Spacer(Modifier.height(18.dp)); Text("سایت‌های اخیر", Modifier.padding(horizontal = 18.dp), fontWeight = FontWeight.Bold)
         LazyColumn(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(sites) { site -> Card(Modifier.fillMaxWidth().clickable { onOpen(site.id) }, RoundedCornerShape(18.dp)) { Row(Modifier.padding(18.dp), Alignment.CenterVertically) { Column(Modifier.weight(1f)) { Text(site.name, fontWeight = FontWeight.Bold); Text(site.code, color = Primary) }; Text("${site.photoCount} عکس") } } }
+            items(sites) { site -> Card(Modifier.fillMaxWidth().clickable { onOpen(site.id) }, RoundedCornerShape(18.dp)) { Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) { Column(Modifier.weight(1f)) { Text(site.name, fontWeight = FontWeight.Bold); Text(site.code, color = Primary) }; Text("${site.photoCount} عکس") } } }
         }
     }
 }
@@ -114,6 +114,7 @@ private fun CreateSiteScreen(onBack: () -> Unit, onCreate: (String, String) -> U
 
 @Composable
 private fun DashboardScreen(site: Site, categories: List<String>, schema: FormSchema, onBack: () -> Unit, onCategory: (String) -> Unit, onPhotos: () -> Unit) {
+    val context = LocalContext.current
     Column(Modifier.fillMaxSize()) {
         Header("${site.name} • ${site.code}", onBack)
         LazyColumn(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -122,7 +123,7 @@ private fun DashboardScreen(site: Site, categories: List<String>, schema: FormSc
                 val fields = schema.fields(cat)
                 Card(Modifier.fillMaxWidth().clickable { onCategory(cat) }, RoundedCornerShape(20.dp)) { Column(Modifier.padding(20.dp)) { Text(if (cat == "Repeater") "رپیتر" else cat, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium); Spacer(Modifier.height(8.dp)); fields.take(5).forEach { Text("• ${it.subCategory}") }; if (fields.size > 5) Text("+ ${fields.size - 5} زیرمجموعه دیگر", color = Primary) } }
             }
-            item { OutlinedButton(onClick = { enqueueExport(LocalContext.current, site.id) }, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) { Text("ساخت خروجی ZIP") } }
+            item { OutlinedButton(onClick = { enqueueExport(context, site.id) }, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) { Text("ساخت خروجی ZIP") } }
             item { OutlinedButton(onClick = onPhotos, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) { Text("ثبت و مدیریت عکس‌ها") } }
         }
     }
